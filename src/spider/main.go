@@ -8,6 +8,7 @@ import (
     "../core/scheduler"
     "strings"
     "github.com/PuerkitoBio/goquery"
+	  "github.com/olivere/elastic"
 )
 
 type MyPageProcesser struct {
@@ -52,10 +53,46 @@ func (this *MyPageProcesser) Finish() {
 }
 
 func main() {
+	client, err := elastic.newClient(elastic.SetUrl("http://127.0.0.1:9200"))
+	if err != nil {
+		panic(err)
+	}
+	exist, err := client.IndexExists("spider").Do(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	if !exist {
+		mapping := `
+{
+	"settings":{
+		"number_of_shareds":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"doc":{
+			"properties":{
+				"name":{
+					"type":"keyword"
+				},
+				"summary":{
+					"type":"text"
+				}
+			}
+		}
+	}
+}
+`
+		createIndex, err := client.CreateIndex("spider").Body(mapping).Do(context.Background())
+		if err != nil {
+			panic(err)
+		}
+	}
 	spider.NewSpider(NewMyPageProcesser(), "baidu_baike_spider").
 		SetScheduler(scheduler.NewQueueScheduler(true)).
 		AddUrl("https://baike.baidu.com/view/1628025.htm?fromtitle=http&fromid=243074&type=syn", "html").
 		AddPipeline(pipeline.NewPipelineConsole()).
+		AddPipeline(pipeline.NewPipelineElasticsearch(&client)).
 		SetSleepTime("rand", 500, 1000).
 		SetThreadnum(8).
 		Run()

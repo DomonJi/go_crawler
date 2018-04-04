@@ -1,32 +1,25 @@
 package pipeline
 
 import (
-	"io/ioutil"
-	"strings"
+	  "context"
 		"../common/com_interfaces"
 		"../common/page_items"
-    "net/http"
+		"github.com/olivere/elastic"
 )
 
 type PipelineElasticsearch struct {
-		url string
+	client *elastic.Client
 }
 
-func NewPipelineElasticsearch(url string) *PipelineElasticsearch {
-	  return &PipelineElasticsearch{url: url}
+func NewPipelineElasticsearch(client *elastic.Client) *PipelineElasticsearch {
+	  return &PipelineElasticsearch{client: client}
 }
 
-func (this * PipelineElasticsearch) Process(items *page_items.PageItems, t *com_interfaces.Task) {
+func (this *PipelineElasticsearch) Process(items *page_items.PageItems, t *com_interfaces.Task) {
     println("----------------------------------------------------------------------------------------------")
 		println("Crawled url :\t" + items.GetRequest().GetUrl() + "\n")
-		resp, err := http.Post(this.url, "application/x-www-form-urlencoded", strings.NewReader("a=b"))
+		_, err := this.client.Index().Index("spider").Type("doc").BodyJson(items.GetAll()).Do(context.Background())
 		if err != nil {
 			println(err)
 		}
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			println(err)
-		}
-		println(string(body))
 }
