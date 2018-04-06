@@ -1,7 +1,9 @@
 package main
 
 import (
-    "fmt"
+		"fmt"
+		"context"
+		"regexp"
     "../core/common/page"
     "../core/pipeline"
     "../core/spider"
@@ -28,7 +30,10 @@ func (this *MyPageProcesser) Process(p *page.Page) {
 		var urls []string
 		query.Find("div.para a").Each(func(i int, s *goquery.Selection) {
 				href, _ := s.Attr("href")
-				urls = append(urls, "https://baike.baidu.com" + href)
+				match, _ := regexp.MatchString("/item/", href)
+				if match {
+					urls = append(urls, "https://baike.baidu.com" + href)
+				}
 		})
 		p.AddTargetRequests(urls, "html")
 
@@ -53,7 +58,7 @@ func (this *MyPageProcesser) Finish() {
 }
 
 func main() {
-	client, err := elastic.newClient(elastic.SetUrl("http://127.0.0.1:9200"))
+	client, err := elastic.NewClient(elastic.SetURL("http://127.0.0.1:9200"))
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +71,7 @@ func main() {
 		mapping := `
 {
 	"settings":{
-		"number_of_shareds":1,
+		"number_of_shards":1,
 		"number_of_replicas":0
 	},
 	"mappings":{
@@ -83,7 +88,7 @@ func main() {
 	}
 }
 `
-		createIndex, err := client.CreateIndex("spider").Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex("spider").Body(mapping).Do(context.Background())
 		if err != nil {
 			panic(err)
 		}
@@ -92,7 +97,7 @@ func main() {
 		SetScheduler(scheduler.NewQueueScheduler(true)).
 		AddUrl("https://baike.baidu.com/view/1628025.htm?fromtitle=http&fromid=243074&type=syn", "html").
 		AddPipeline(pipeline.NewPipelineConsole()).
-		AddPipeline(pipeline.NewPipelineElasticsearch(&client)).
+		AddPipeline(pipeline.NewPipelineElasticsearch(client)).
 		SetSleepTime("rand", 500, 1000).
 		SetThreadnum(8).
 		Run()

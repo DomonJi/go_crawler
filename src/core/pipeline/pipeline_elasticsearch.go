@@ -15,7 +15,7 @@ func NewPipelineElasticsearch(client *elastic.Client) *PipelineElasticsearch {
 	  return &PipelineElasticsearch{client: client}
 }
 
-func (this *PipelineElasticsearch) Process(items *page_items.PageItems, t *com_interfaces.Task) {
+func (this *PipelineElasticsearch) Process(items *page_items.PageItems, t com_interfaces.Task) {
     println("----------------------------------------------------------------------------------------------")
 		println("Crawled url :\t" + items.GetRequest().GetUrl() + "\n")
 		_, err := this.client.Index().Index("spider").Type("doc").BodyJson(items.GetAll()).Do(context.Background())
