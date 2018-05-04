@@ -49,7 +49,7 @@ func NewSpider(pageinst page_processer.PageProcesser, taskname string) *Spider {
     ap.startSleeptime = 0
 
     if ap.pScheduler == nil {
-        ap.SetScheduler(scheduler.NewBloomScheduler())
+        ap.SetScheduler(scheduler.NewQueueScheduler(false))
     }
 
     if ap.pDownloader == nil {
@@ -141,7 +141,7 @@ func (this *Spider) Run() {
 }
 
 func (this *Spider) close() {
-    this.SetScheduler(scheduler.NewBloomScheduler())
+    this.SetScheduler(scheduler.NewQueueScheduler(false))
     this.SetDownloader(downloader.NewHttpDownloader())
     this.pPiplelines = make([]pipeline.Pipeline, 0)
     this.exitWhenComplete = true

@@ -49,7 +49,7 @@ class App extends Component {
           autoFocus
         />
         <Button id="search-button" onClick={this.search}>Search</Button>
-        <List>
+        <List id="result-list">
           {this.state.result.map(item => (
             <ListItem>
               <Card className="result-card" onClick={() => window.open(item._source.url)}>

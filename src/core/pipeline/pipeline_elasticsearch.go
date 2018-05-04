@@ -18,7 +18,13 @@ func NewPipelineElasticsearch(client *elastic.Client) *PipelineElasticsearch {
 func (this *PipelineElasticsearch) Process(items *page_items.PageItems, t com_interfaces.Task) {
     println("----------------------------------------------------------------------------------------------")
 		println("Crawled url :\t" + items.GetRequest().GetUrl() + "\n")
-		_, err := this.client.Index().Index("spider").Type("doc").BodyJson(items.GetAll()).Do(context.Background())
+		name, _ := items.GetItem("name")
+		_, err := this.client.Index().
+			Index("spider").
+			Type("doc").
+			Id(name).
+			BodyJson(items.GetAll()).
+			Do(context.Background())
 		if err != nil {
 			println(err)
 		}

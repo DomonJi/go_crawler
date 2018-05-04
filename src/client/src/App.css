@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  padding: 50px 0;
+  padding: 100px 0;
   color: #444;
 }
 
@@ -30,11 +30,21 @@
 }
 
 .result-card {
-  width: 600px;
+  width: 800px;
   margin: auto;
   cursor: pointer;
 }
 
+#result-list {
+  margin: 50px;
+}
+
+#search {
+  width: 425px;
+}
+
 #search-button {
-  margin-left: 20px;
+  margin-left: 50px;
+  color: white;
+  background-color: slateblue;
 }

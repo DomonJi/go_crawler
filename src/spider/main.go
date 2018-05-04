@@ -79,13 +79,19 @@ func main() {
 		"doc":{
 			"properties":{
 				"name":{
-					"type":"keyword"
+					"type":"text",
+					"analyzer": "ik_max_word",
+					"search_analyzer": "ik_max_word"
 				},
 				"summary":{
-					"type":"text"
+					"type":"text",
+					"analyzer": "ik_max_word",
+					"search_analyzer": "ik_max_word"
 				},
 				"url":{
-					"type":"text"
+					"type":"text",
+					"analyzer": "ik_max_word",
+					"search_analyzer": "ik_max_word"
 				}
 			}
 		}
@@ -98,7 +104,7 @@ func main() {
 		}
 	}
 	spider.NewSpider(NewMyPageProcesser(), "baidu_baike_spider").
-		SetScheduler(scheduler.NewBloomScheduler()).
+		SetScheduler(scheduler.NewQueueScheduler(true)).
 		AddUrl("https://baike.baidu.com/view/1628025.htm?fromtitle=http&fromid=243074&type=syn", "html").
 		AddPipeline(pipeline.NewPipelineElasticsearch(client)).
 		SetSleepTime("rand", 500, 1000).
