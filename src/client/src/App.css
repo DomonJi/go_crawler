@@ -32,6 +32,7 @@
 .result-card {
   width: 600px;
   margin: auto;
+  cursor: pointer;
 }
 
 #search-button {

@@ -51,6 +51,7 @@ func (this *MyPageProcesser) Process(p *page.Page) {
 
     p.AddField("name", name)
 		p.AddField("summary", summary)
+		p.AddField("url", p.GetRequest().GetUrl())
 }
 
 func (this *MyPageProcesser) Finish() {
@@ -82,6 +83,9 @@ func main() {
 				},
 				"summary":{
 					"type":"text"
+				},
+				"url":{
+					"type":"text"
 				}
 			}
 		}
@@ -94,9 +98,8 @@ func main() {
 		}
 	}
 	spider.NewSpider(NewMyPageProcesser(), "baidu_baike_spider").
-		SetScheduler(scheduler.NewQueueScheduler(true)).
+		SetScheduler(scheduler.NewBloomScheduler()).
 		AddUrl("https://baike.baidu.com/view/1628025.htm?fromtitle=http&fromid=243074&type=syn", "html").
-		AddPipeline(pipeline.NewPipelineConsole()).
 		AddPipeline(pipeline.NewPipelineElasticsearch(client)).
 		SetSleepTime("rand", 500, 1000).
 		SetThreadnum(8).

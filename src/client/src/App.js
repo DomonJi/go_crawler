@@ -12,22 +12,29 @@ class App extends Component {
       search: '',
       result: [],
     }
-    this.handleChange = this.handleChange.bind(this)
-    this.search = this.search.bind(this)
   }
 
-  handleChange(event) {
+  handleChange = event => {
     this.setState({ search: event.target.value })
   }
 
-  search(){
+  handleKeyPress = event => {
+    event.key === 'Enter' && this.search()
+  }
+
+  search = () => {
     if (!this.state.search) return
     const searchValue = this.state.search
     fetch(`http://localhost:9200/spider/_search?q=${encodeURIComponent(searchValue)}`, {
       method: 'GET',
-    }).then(res => res.json())
-    .then(res => this.setState({ result: res.hits.hits }))
-    // .then(console.log.bind(console))
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res && res.hits) this.setState({
+        result: res.hits.hits
+      })
+    })
+    .catch(console.log.bind(console))
   }
 
   render() {
@@ -38,12 +45,14 @@ class App extends Component {
           name="search"
           value={this.state.search}
           onChange={this.handleChange}
+          onKeyPress={this.handleKeyPress}
+          autoFocus
         />
         <Button id="search-button" onClick={this.search}>Search</Button>
         <List>
           {this.state.result.map(item => (
             <ListItem>
-              <Card className="result-card">
+              <Card className="result-card" onClick={() => window.open(item._source.url)}>
                 <CardContent>
                   <h2>{item._source.name}</h2>
                   <p>{item._source.summary}</p>
