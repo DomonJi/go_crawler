@@ -107,7 +107,7 @@ func main() {
 		SetScheduler(scheduler.NewQueueScheduler(true)).
 		AddUrl("https://baike.baidu.com/view/1628025.htm?fromtitle=http&fromid=243074&type=syn", "html").
 		AddPipeline(pipeline.NewPipelineElasticsearch(client)).
-		SetSleepTime("rand", 500, 1000).
+		// SetSleepTime("rand", 500, 1000).
 		SetThreadnum(8).
 		Run()
 }
