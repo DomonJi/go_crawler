@@ -66,7 +66,7 @@ func (this *MyPageProcesser) Process(p *page.Page) {
 }
 
 func (this *MyPageProcesser) Finish() {
-    fmt.Printf("TODO:before end spider \r\n")
+    fmt.Printf("Crawler finished \r\n")
 }
 
 func main() {
@@ -129,6 +129,6 @@ func main() {
 			"http://baike.baidu.com/shenghuo",
 			}, "html").
 		AddPipeline(pipeline.NewPipelineElasticsearch(client)).
-		SetThreadnum(8).
+		SetThreadnum(16).
 		Run()
 }
