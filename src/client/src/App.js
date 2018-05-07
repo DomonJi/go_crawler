@@ -31,7 +31,7 @@ class App extends Component {
     .then(res => res.json())
     .then(res => {
       if (res && res.hits) this.setState({
-        result: res.hits.hits
+        result: res.hits.hits.slice(0, 29)
       })
     })
     .catch(console.log.bind(console))
@@ -51,7 +51,7 @@ class App extends Component {
         <Button id="search-button" onClick={this.search}>Search</Button>
         <List id="result-list">
           {this.state.result.map(item => (
-            <ListItem>
+            <ListItem key={item._source.name}>
               <Card className="result-card" onClick={() => window.open(item._source.url)}>
                 <CardContent>
                   <h2>{item._source.name}</h2>

@@ -28,14 +28,25 @@ func (this *MyPageProcesser) Process(p *page.Page) {
 
 		query := p.GetHtmlParser()
 		var urls []string
-		query.Find("div.para a").Each(func(i int, s *goquery.Selection) {
+		query.Find("a").Each(func(i int, s *goquery.Selection) {
 				href, _ := s.Attr("href")
-				match, _ := regexp.MatchString("/item/", href)
+				match, _ := regexp.MatchString("/item/|/view/|/fenlei/", href)
 				if match {
-					urls = append(urls, "https://baike.baidu.com" + href)
+					if strings.HasPrefix(href, "http")	{
+						urls = append(urls, href)
+					} else {
+						urls = append(urls, "https://baike.baidu.com" + href)
+					}
 				}
 		})
 		p.AddTargetRequests(urls, "html")
+
+		url := p.GetRequest().GetUrl()
+		match, _ := regexp.MatchString("/item/|/view/", url)
+		if !match {
+			p.SetSkip(true)
+			return
+		}
 
     name := query.Find(".lemmaWgt-lemmaTitle-title h1").Text()
     name = strings.Trim(name, " \t\n")
@@ -51,7 +62,7 @@ func (this *MyPageProcesser) Process(p *page.Page) {
 
     p.AddField("name", name)
 		p.AddField("summary", summary)
-		p.AddField("url", p.GetRequest().GetUrl())
+		p.AddField("url", url)
 }
 
 func (this *MyPageProcesser) Finish() {
@@ -105,9 +116,19 @@ func main() {
 	}
 	spider.NewSpider(NewMyPageProcesser(), "baidu_baike_spider").
 		SetScheduler(scheduler.NewQueueScheduler(true)).
-		AddUrl("https://baike.baidu.com/view/1628025.htm?fromtitle=http&fromid=243074&type=syn", "html").
+		AddUrls([]string{
+			"http://baike.baidu.com/renwu",
+			"http://baike.baidu.com/ziran",
+			"http://baike.baidu.com/wenhua",
+			"http://baike.baidu.com/tiyu",
+			"http://baike.baidu.com/shehui",
+			"http://baike.baidu.com/lishi",
+			"http://baike.baidu.com/dili",
+			"http://baike.baidu.com/keji",
+			"http://baike.baidu.com/fenlei/娱乐",
+			"http://baike.baidu.com/shenghuo",
+			}, "html").
 		AddPipeline(pipeline.NewPipelineElasticsearch(client)).
-		// SetSleepTime("rand", 500, 1000).
 		SetThreadnum(8).
 		Run()
 }
